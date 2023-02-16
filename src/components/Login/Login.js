@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer, useContext } from 'react';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
 import Button from '../UI/Button/Button';
+import Context from '../Store/Context';
 
 
 
@@ -37,8 +38,8 @@ const dispatchHandler = (state, action) => {
   }
 }
 
-const Login = (props) => {
-
+const Login = () => {
+  const ctx = useContext(Context)
 
   const [formIsValid, setFormIsValid] = useState(false);
   const [emailState, dispatchEmail] = useReducer(dispatchHandler, { value: '', isValid: null })
@@ -77,7 +78,7 @@ const Login = (props) => {
   const submitHandler = (event) => {
     event.preventDefault();
     localStorage.setItem('isLoggedIn', 'true')
-    props.onLogin(emailState.value, passwordState.value);
+    ctx.onLogin(emailState.value, passwordState.value);
   };
 
   return (
