@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useReducer, useContext } from 'react';
+import React, { useState, useEffect, useReducer, useContext, useRef } from 'react';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
 import Button from '../UI/Button/Button';
 import Context from '../Store/Context';
+import Input from '../Input/Input.js';
 
 
-
+//dispatching actions
 const validateAction = (action) => {
   if (action.for === 'email') {
     return { value: action.value, isValid: action.value.includes('@') }
@@ -28,6 +29,7 @@ const defaultState = () => {
   return { value: '', isValid: false }
 }
 
+//dispatch handler
 const dispatchHandler = (state, action) => {
   if (action.type === 'USER_INPUT') {
     return validateAction(action)
@@ -37,16 +39,23 @@ const dispatchHandler = (state, action) => {
     return defaultState()
   }
 }
-
+//*********************************************************/
+//*********************************************************/
+//Component
 const Login = () => {
+  //context 
   const ctx = useContext(Context)
-
+  //refs
+  const emailRef = useRef()
+  const passwordRef = useRef()
+  //states
   const [formIsValid, setFormIsValid] = useState(false);
   const [emailState, dispatchEmail] = useReducer(dispatchHandler, { value: '', isValid: null })
   const [passwordState, dispatchPassword] = useReducer(dispatchHandler, { value: '', isValid: null })
-
+  //vars
   const loginValidite = emailState.isValid && passwordState.isValid
-
+  //*********************************************************/
+  //*********************************************************/
   useEffect(() => {
     const loginTimeOut = setTimeout(() => {
       if (emailState.isValid && passwordState.value.length > 0) {
@@ -58,6 +67,10 @@ const Login = () => {
     };
   }, [loginValidite]);
 
+  //*********************************************************/
+  //*********************************************************/
+
+  //form handlers
   const emailChangeHandler = (event) => {
     dispatchEmail({ type: 'USER_INPUT', value: event.target.value, for: 'email' })
 
@@ -78,37 +91,28 @@ const Login = () => {
   const submitHandler = (event) => {
     event.preventDefault();
     localStorage.setItem('isLoggedIn', 'true')
-    ctx.onLogin(emailState.value, passwordState.value);
+    if (formIsValid) {
+      ctx.onLogin(emailState.value, passwordState.value);
+    } else if (!emailState.isValid) {
+      emailRef.current.focus()
+    } else {
+      passwordRef.current.focus()
+    }
   };
-
+  //*********************************************************/
+  //*********************************************************/
   return (
     <Card className={classes.login}>
       <form onSubmit={submitHandler}>
-        <div
-          className={`${classes.control} ${emailState.isValid === false ? classes.invalid : ''}`}
-        >
-          <label htmlFor="email">E-Mail</label>
-          <input
-            type="email"
-            id="email"
-            onChange={emailChangeHandler}
-            onBlur={validateEmailHandler}
-          />
-        </div>
+        <Input id='email' ref={emailRef} label='E-Mail' type='email' ChangeHandler={emailChangeHandler} validateHandler={validateEmailHandler} state={emailState} />
         <div
           className={`${classes.control} ${passwordState.isValid === false ? classes.invalid : ''
             }`}
         >
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            onChange={passwordChangeHandler}
-            onBlur={validatePasswordHandler}
-          />
+          <Input id='password' ref={passwordRef} label='Password' type='password' ChangeHandler={passwordChangeHandler} validateHandler={validatePasswordHandler} state={passwordState} />
         </div>
         <div className={classes.actions}>
-          <Button type="submit" className={classes.btn} disabled={!formIsValid}>
+          <Button type="submit" className={classes.btn}>
             Login
           </Button>
         </div>
