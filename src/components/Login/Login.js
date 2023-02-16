@@ -6,16 +6,17 @@ import Button from '../UI/Button/Button';
 
 
 
-const validateState = (type, state) => {
-  if (type === 'email') {
-    return { value: state.value, isValid: state.value.includes('@') }
-  } else if (type === 'password') {
-    return { value: state.value, isValid: state.value.trim().length > 6 }
+const validateAction = (action) => {
+  if (action.for === 'email') {
+    return { value: action.value, isValid: action.value.includes('@') }
+  } else if (action.for === 'password') {
+    return { value: action.value, isValid: action.value.trim().length > 6 }
   }
 }
 
-const blurState = (type, state) => {
+const blurState = (state, type) => {
   if (type === 'email') {
+    console.log(state);
     return { value: state, isValid: state.isValid }
   } else if (type === 'password') {
     return { value: state, isValid: state.isValid }
@@ -28,9 +29,9 @@ const defaultState = () => {
 
 const dispatchHandler = (state, action) => {
   if (action.type === 'USER_INPUT') {
-    return validateState(action.for, action)
+    return validateAction(action)
   } else if (action.type === 'BLUR') {
-    return blurState(action.for, state)
+    return blurState(state, action.for)
   } else {
     return defaultState()
   }
@@ -84,8 +85,7 @@ const Login = (props) => {
     <Card className={classes.login}>
       <form onSubmit={submitHandler}>
         <div
-          className={`${classes.control} ${emailState.isValid === false ? classes.invalid : ''
-            }`}
+          className={`${classes.control} ${emailState.isValid === false ? classes.invalid : ''}`}
         >
           <label htmlFor="email">E-Mail</label>
           <input
